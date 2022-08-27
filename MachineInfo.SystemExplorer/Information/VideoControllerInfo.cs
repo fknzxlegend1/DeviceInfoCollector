@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MachineInfo.System.Enumerations;
+using MachineInfo.System.Internal;
 using System.Management;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SystemInfoExplorer
+namespace MachineInfo.System.Information
 {
     /// <summary>
     /// \class VideoControllerInfo 
@@ -15,12 +13,7 @@ namespace SystemInfoExplorer
     /// </summary>
     public class VideoControllerInfo
     {
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public VideoControllerInfo()
-        {
-        }
+        #region Public properties
 
         /// <summary>
         /// Video controller identifier
@@ -98,12 +91,12 @@ namespace SystemInfoExplorer
         /// <summary>
         /// Type of video architecture.
         /// </summary>
-        public VIDEO_ARCHITECTURE VideoArchitecture { get; set; }
+        public VideoArchitecture VideoArchitecture { get; set; }
 
         /// <summary>
         /// Type of video memory.
         /// </summary>
-        public VIDEO_MEMORY_TYPE VideoMemoryType { get; set; }
+        public VideoMemoryType VideoMemoryType { get; set; }
 
         /// <summary>
         /// Current video mode.
@@ -165,6 +158,10 @@ namespace SystemInfoExplorer
         /// </summary>
         public string DriverDate { get; set; }
 
+        #endregion
+
+        #region Public methods
+
         /// <summary>
         /// This function parses the management object structure to extract the video controller info fields.
         /// </summary>
@@ -174,45 +171,63 @@ namespace SystemInfoExplorer
         {
             try
             {
-                CurrentBitsPerPixel = (mgtObject["CurrentBitsPerPixel"] == null) ? -1 : int.Parse(mgtObject["CurrentBitsPerPixel"].ToString());
-                CurrentHorizontalResolution = (mgtObject["CurrentHorizontalResolution"] == null) ? -1 : int.Parse(mgtObject["CurrentHorizontalResolution"].ToString());
-                CurrentNumberOfColors = (mgtObject["CurrentNumberOfColors"] == null) ? -1 : long.Parse(mgtObject["CurrentNumberOfColors"].ToString());
-                CurrentNumberOfColumns = (mgtObject["CurrentNumberOfColumns"] == null) ? -1 : long.Parse(mgtObject["CurrentNumberOfColumns"].ToString());
-                CurrentNumberOfRows = (mgtObject["CurrentNumberOfRows"] == null) ? -1 : long.Parse(mgtObject["CurrentNumberOfRows"].ToString());
-                CurrentRefreshRate = (mgtObject["CurrentRefreshRate"] == null) ? -1 : int.Parse(mgtObject["CurrentRefreshRate"].ToString());
+                CurrentBitsPerPixel = mgtObject[Indexes.VideoController_CurrentBitsPerPixelIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_CurrentBitsPerPixelIndex].ToString()) : -1;
 
-                CurrentScanMode = (mgtObject["CurrentScanMode"] == null) ? -1 : int.Parse(mgtObject["CurrentScanMode"].ToString());
-                CurrentVerticalResolution = (mgtObject["CurrentVerticalResolution"] == null) ? -1 : int.Parse(mgtObject["CurrentVerticalResolution"].ToString());
-                DeviceSpecificPens = (mgtObject["DeviceSpecificPens"] == null) ? -1 : int.Parse(mgtObject["DeviceSpecificPens"].ToString());
+                CurrentHorizontalResolution = mgtObject[Indexes.VideoController_CurrentHorizontalResolutionIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_CurrentHorizontalResolutionIndex].ToString()) : -1;
 
-                DitherType = (mgtObject["DitherType"] == null) ? -1 : int.Parse(mgtObject["DitherType"].ToString());
+                CurrentNumberOfColors = mgtObject[Indexes.VideoController_CurrentNumberOfColorsIndex] != null ? long.Parse(mgtObject[Indexes.VideoController_CurrentNumberOfColorsIndex].ToString()) : -1;
 
-                Id = mgtObject["Name"].ToString();
+                CurrentNumberOfColumns = mgtObject[Indexes.VideoController_CurrentNumberOfColumnsIndex] != null ? long.Parse(mgtObject[Indexes.VideoController_CurrentNumberOfColumnsIndex].ToString()) : -1;
 
-                VideoModeDescription = mgtObject["VideoModeDescription"].ToString();
-                VideoProcessor = mgtObject["VideoProcessor"].ToString();
-                SystemName = mgtObject["SystemName"].ToString();
-                Description = mgtObject["Description"].ToString();
-                Status = mgtObject["Status"].ToString();
+                CurrentNumberOfRows = mgtObject[Indexes.VideoController_CurrentNumberOfRowsIndex] != null ? long.Parse(mgtObject[Indexes.VideoController_CurrentNumberOfRowsIndex].ToString()) : -1;
 
-                AdapterRAM = (mgtObject["AdapterRAM"] == null) ? -1 : int.Parse(mgtObject["AdapterRAM"].ToString());
-                ColorTableEntries = (mgtObject["ColorTableEntries"] == null) ? -1 : int.Parse(mgtObject["ColorTableEntries"].ToString());
-                AdapterDACType = (mgtObject["AdapterDACType"] == null) ? "" : mgtObject["AdapterDACType"].ToString();
+                CurrentRefreshRate = mgtObject[Indexes.VideoController_CurrentRefreshRateIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_CurrentRefreshRateIndex].ToString()) : -1;
 
-                LastErrorCode = (mgtObject["LastErrorCode"] == null) ? -1 : int.Parse(mgtObject["LastErrorCode"].ToString());
-                MaxMemorySupported = (mgtObject["MaxMemorySupported"] == null) ? -1 : int.Parse(mgtObject["MaxMemorySupported"].ToString());
-                MaxNumberControlled = (mgtObject["MaxNumberControlled"] == null) ? -1 : int.Parse(mgtObject["MaxNumberControlled"].ToString());
-                MaxRefreshRate = (mgtObject["MaxRefreshRate"] == null) ? -1 : int.Parse(mgtObject["MaxRefreshRate"].ToString());
-                MinRefreshRate = (mgtObject["MinRefreshRate"] == null) ? -1 : int.Parse(mgtObject["MinRefreshRate"].ToString());
-                LastErrorCode = (mgtObject["LastErrorCode"] == null) ? -1 : int.Parse(mgtObject["LastErrorCode"].ToString());
+                CurrentScanMode = mgtObject[Indexes.VideoController_CurrentScanModeIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_CurrentScanModeIndex].ToString()) : -1;
 
-                VideoArchitecture = GetVideoArchitecture((mgtObject["VideoArchitecture"] == null) ? 2 : int.Parse(mgtObject["VideoArchitecture"].ToString()));
-                VideoMemoryType = GetVideoMemoryType((mgtObject["VideoMemoryType"] == null) ? 2 : int.Parse(mgtObject["VideoMemoryType"].ToString()));
-                VideoMode = (mgtObject["VideoMode"] == null) ? -1 : int.Parse(mgtObject["VideoMode"].ToString());
+                CurrentVerticalResolution = mgtObject[Indexes.VideoController_CurrentVerticalResolutionIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_CurrentVerticalResolutionIndex].ToString()) : -1;
 
-                if (mgtObject["DriverDate"] != null)
+                DeviceSpecificPens = mgtObject[Indexes.VideoController_DeviceSpecificPensIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_DeviceSpecificPensIndex].ToString()) : -1;
+
+                DitherType = mgtObject[Indexes.VideoController_DitherTypeIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_DitherTypeIndex].ToString()) : -1;
+
+                Id = mgtObject[Indexes.VideoController_IdIndex].ToString();
+
+                VideoModeDescription = mgtObject[Indexes.VideoController_VideoModeDescriptionIndex].ToString();
+
+                VideoProcessor = mgtObject[Indexes.VideoController_VideoProcessorIndex].ToString();
+
+                SystemName = mgtObject[Indexes.VideoController_SystemNameIndex].ToString();
+
+                Description = mgtObject[Indexes.VideoController_DescriptionIndex].ToString();
+
+                Status = mgtObject[Indexes.VideoController_StatusIndex].ToString();
+
+                AdapterRAM = mgtObject[Indexes.VideoController_AdapterRAMIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_AdapterRAMIndex].ToString()) : -1;
+
+                ColorTableEntries = mgtObject[Indexes.VideoController_ColorTableEntriesIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_ColorTableEntriesIndex].ToString()) : -1;
+
+                AdapterDACType = mgtObject[Indexes.VideoController_AdapterDACTypeIndex] != null ? mgtObject[Indexes.VideoController_AdapterDACTypeIndex].ToString() : string.Empty;
+
+                LastErrorCode = mgtObject[Indexes.VideoController_LastErrorCodeIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_LastErrorCodeIndex].ToString()) : -1;
+
+                MaxMemorySupported = mgtObject[Indexes.VideoController_MaxMemorySupportedIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_MaxMemorySupportedIndex].ToString()) : -1;
+
+                MaxNumberControlled = mgtObject[Indexes.VideoController_MaxNumberControlledIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_MaxNumberControlledIndex].ToString()) : -1;
+
+                MaxRefreshRate = mgtObject[Indexes.VideoController_MaxRefreshRateIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_MaxRefreshRateIndex].ToString()) : -1;
+
+                MinRefreshRate = mgtObject[Indexes.VideoController_MinRefreshRateIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_MinRefreshRateIndex].ToString()) : -1;
+
+                VideoArchitecture = GetVideoArchitecture(mgtObject[Indexes.VideoController_VideoArchitectureIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_VideoArchitectureIndex].ToString()) : 2);
+
+                VideoMemoryType = GetVideoMemoryType(mgtObject[Indexes.VideoController_VideoMemoryTypeIndex] == null ? int.Parse(mgtObject[Indexes.VideoController_VideoMemoryTypeIndex].ToString()) : 2);
+
+                VideoMode = mgtObject[Indexes.VideoController_VideoModeIndex] != null ? int.Parse(mgtObject[Indexes.VideoController_VideoModeIndex].ToString()) : -1;
+
+                string str = mgtObject[Indexes.VideoController_DriverDateIndex].ToString().TrimEnd();
+                if (!string.IsNullOrWhiteSpace(str))
                 {
-                    string str = mgtObject["DriverDate"].ToString().TrimEnd();
                     int year = int.Parse(str.Substring(0, 4));
                     int month = int.Parse(str.Substring(4, 2));
                     int day = int.Parse(str.Substring(6, 2));
@@ -221,45 +236,21 @@ namespace SystemInfoExplorer
                     int minute = int.Parse(str.Substring(10, 2));
                     int second = int.Parse(str.Substring(12, 2));
 
-                    DateTime date = new DateTime(year, month, day, hour, minute, second);
+                    DateTime date = new(year, month, day, hour, minute, second);
 
-                    DriverDate = date.ToLocalTime().ToString();
+                    DriverDate = date.ToString();
                 }
                 else
                 {
-                    DriverDate = "";
+                    DriverDate = string.Empty;
                 }
 
                 return 0;
             }
-            catch (Exception ex)
+            catch
             {
-#if DEBUG
-                Console.WriteLine($"Exception Message: {ex.Message}");
-#endif
                 return -1;
-            }            
-
-        }
-
-        /// <summary>
-        /// This functions converts the video controller architecture from enumeration to string
-        /// </summary>
-        /// <param name="architecture">the video controller architecture (int)</param>
-        /// <returns>the video controller architecture (string)</returns>
-        protected VIDEO_ARCHITECTURE GetVideoArchitecture(int architecture)
-        {
-            return (VIDEO_ARCHITECTURE)architecture;
-        }
-
-        /// <summary>
-        /// This functions converts the video controller architecture from enumeration to string
-        /// </summary>
-        /// <param name="memtype">the video controller architecture (int)</param>
-        /// <returns>the video controller architecture (string)</returns>
-        protected VIDEO_MEMORY_TYPE GetVideoMemoryType(int memtype)
-        {
-            return (VIDEO_MEMORY_TYPE)memtype;
+            }
         }
 
         /// <summary>
@@ -268,7 +259,7 @@ namespace SystemInfoExplorer
         /// <returns>string</returns>
         public override string ToString()
         {
-            StringBuilder str = new StringBuilder();
+            StringBuilder str = new();
 
             str.Append($"Name: {Id}\n");
             str.Append($"Video Architecture: {VideoArchitecture}\n");
@@ -280,5 +271,31 @@ namespace SystemInfoExplorer
 
             return str.ToString();
         }
+
+        #endregion
+
+        #region Private methods
+
+        /// <summary>
+        /// This functions converts the video controller architecture from enumeration to string
+        /// </summary>
+        /// <param name="architecture">the video controller architecture (int)</param>
+        /// <returns>the video controller architecture (string)</returns>
+        protected static VideoArchitecture GetVideoArchitecture(int architecture)
+        {
+            return (VideoArchitecture)architecture;
+        }
+
+        /// <summary>
+        /// This functions converts the video controller architecture from enumeration to string
+        /// </summary>
+        /// <param name="memtype">the video controller architecture (int)</param>
+        /// <returns>the video controller architecture (string)</returns>
+        protected static VideoMemoryType GetVideoMemoryType(int memtype)
+        {
+            return (VideoMemoryType)memtype;
+        }
+
+        #endregion
     }
 }

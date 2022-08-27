@@ -1,27 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MachineInfo.System.Enumerations;
+using MachineInfo.System.Internal;
 using System.Management;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace SystemInfoExplorer
+namespace MachineInfo.System.Information
 {
     /// <summary>
-    /// \class CPUInfo 
+    /// Class <see cref="CPUInfo"/>
+    /// <para />
     /// Captures the properties of the CPUs installed on the computer.
     /// It uses a subset of the properties defined in the WMI class: Win32_Processor
-    /// For more information, <see href="https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-processor">Win32_Processor</see>
+    /// <para />
+    /// For more information see <see href="https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-processor">Win32_Processor</see>
     /// </summary>
     public class CPUInfo
     {
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public CPUInfo()
-        {
-        }                
+        #region Public properties
 
         /// <summary>
         /// CPU identifier
@@ -36,13 +31,13 @@ namespace SystemInfoExplorer
         /// <summary>
         /// Processor architecture used by the platform.
         /// </summary>
-        public CPU_ARCHITECTURE Architecture { get; set; }
+        public CPUArchitecture Architecture { get; set; }
 
         /// <summary>
         /// Current status of the processor. Status changes indicate processor usage, 
         /// but not the physical condition of the processor.
         /// </summary>
-        public CPU_STATUS CpuStatus { get; set; }
+        public CPUStatus CpuStatus { get; set; }
 
         /// <summary>
         /// On a 32-bit processor, the value is 32 and on a 64-bit processor it is 64.
@@ -57,7 +52,7 @@ namespace SystemInfoExplorer
         /// <summary>
         /// Processor family type.
         /// </summary>
-        public CPU_FAMILY Family { get; set; }
+        public CPUFamily Family { get; set; }
 
         /// <summary>
         /// Name of the processor manufacturer.
@@ -109,7 +104,7 @@ namespace SystemInfoExplorer
         /// <summary>
         /// Voltage of the processor. 
         /// </summary>
-        public CPU_VOLTAGE CurrentVoltage { get; set; }
+        public CPUVoltage CurrentVoltage { get; set; }
 
         /// <summary>
         /// Number of cores for the current instance of the processor. 
@@ -168,6 +163,10 @@ namespace SystemInfoExplorer
         /// </summary>
         public string VirtualizationFirmwareEnabled { get; set; }
 
+        #endregion
+
+        #region Public methods
+
         /// <summary>
         /// This function parses the management object structure to extract the CPU info fields.
         /// </summary>
@@ -177,50 +176,67 @@ namespace SystemInfoExplorer
         {
             try
             {
-                Id = (mgtObject["Name"] == null) ? "" : Regex.Replace(mgtObject["Name"].ToString(), @"\s+", " ");
-                AddressWidth = int.Parse(mgtObject["AddressWidth"].ToString());
-                CpuStatus = GetCpuStatus(int.Parse(mgtObject["CpuStatus"].ToString()));
-                DataWidth = int.Parse(mgtObject["DataWidth"].ToString());
-                DeviceID = mgtObject["DeviceID"].ToString();
-                Family = GetCpuFamily(int.Parse(mgtObject["Family"].ToString()));
-                Manufacturer = mgtObject["Manufacturer"].ToString();
-                MaxClockSpeed = int.Parse(mgtObject["MaxClockSpeed"].ToString());
-                CurrentClockSpeed = int.Parse(mgtObject["CurrentClockSpeed"].ToString());
-                PartNumber = mgtObject["PartNumber"].ToString();
-                SerialNumber = mgtObject["SerialNumber"].ToString().Trim();
-                UniqueId = mgtObject["UniqueId"] == null ? "" : mgtObject["UniqueId"].ToString();
-                ProcessorType = int.Parse(mgtObject["ProcessorType"].ToString());
-                ProcessorId = mgtObject["ProcessorId"].ToString();
-                LoadPercentage = int.Parse(mgtObject["LoadPercentage"].ToString());
-                Architecture = GetCpuArchitecture(int.Parse(mgtObject["Architecture"].ToString()));
+                Id = mgtObject[Indexes.CPU_IdIndex] == null ? "" : Regex.Replace(mgtObject[Indexes.CPU_IdIndex].ToString(), @"\s+", " ");
 
-                CurrentVoltage = (mgtObject["CurrentVoltage"] == null) ? CPU_VOLTAGE.UNKNOWN : GetCpuCurrentVoltage(int.Parse(mgtObject["CurrentVoltage"].ToString()));
-                NumberOfLogicalProcessors = int.Parse(mgtObject["NumberOfLogicalProcessors"].ToString());
-                NumberOfCores = int.Parse(mgtObject["NumberOfCores"].ToString());
-                NumberOfEnabledCore = int.Parse(mgtObject["NumberOfEnabledCore"].ToString());
+                AddressWidth = int.Parse(mgtObject[Indexes.CPU_AddressWidthIndex].ToString());
 
-                Level = int.Parse(mgtObject["Level"].ToString());
-                L2CacheSize = (mgtObject["L2CacheSize"] == null) ? -1 : int.Parse(mgtObject["L2CacheSize"].ToString());
-                L2CacheSpeed = (mgtObject["L2CacheSpeed"] == null) ? -1 : int.Parse(mgtObject["L2CacheSpeed"].ToString());
-                L3CacheSize = (mgtObject["L3CacheSize"] == null) ? -1 : int.Parse(mgtObject["L3CacheSize"].ToString());
-                L3CacheSpeed = (mgtObject["L3CacheSpeed"] == null) ? -1 : int.Parse(mgtObject["L3CacheSpeed"].ToString());
+                CpuStatus = GetCpuStatus(int.Parse(mgtObject[Indexes.CPU_CpuStatusIndex].ToString()));
 
-                ThreadCount = (mgtObject["ThreadCount"] == null) ? -1 : int.Parse(mgtObject["ThreadCount"].ToString());
+                DataWidth = int.Parse(mgtObject[Indexes.CPU_DataWidthIndex].ToString());
 
-                bool virtualFlag = false;
-                Boolean.TryParse(mgtObject["VirtualizationFirmwareEnabled"].ToString(), out virtualFlag);
-                VirtualizationFirmwareEnabled = ((bool)virtualFlag) ? "ENABLED" : "DISABLED";
+                DeviceID = mgtObject[Indexes.CPU_DeviceIDIndex].ToString();
+
+                Family = GetCpuFamily(int.Parse(mgtObject[Indexes.CPU_FamilyIndex].ToString()));
+
+                Manufacturer = mgtObject[Indexes.CPU_ManufacturerIndex].ToString();
+
+                MaxClockSpeed = int.Parse(mgtObject[Indexes.CPU_MaxClockSpeedIndex].ToString());
+
+                CurrentClockSpeed = int.Parse(mgtObject[Indexes.CPU_CurrentClockSpeedIndex].ToString());
+
+                PartNumber = mgtObject[Indexes.CPU_PartNumberIndex].ToString();
+
+                SerialNumber = mgtObject[Indexes.CPU_SerialNumberIndex].ToString().Trim();
+
+                UniqueId = mgtObject[Indexes.CPU_UniqueIdIndex] != null ? mgtObject[Indexes.CPU_UniqueIdIndex].ToString() : string.Empty;
+
+                ProcessorType = int.Parse(mgtObject[Indexes.CPU_ProcessorTypeIndex].ToString());
+
+                ProcessorId = mgtObject[Indexes.CPU_ProcessorIdIndex].ToString();
+
+                LoadPercentage = int.Parse(mgtObject[Indexes.CPU_LoadPercentageIndex].ToString());
+
+                Architecture = GetCpuArchitecture(int.Parse(mgtObject[Indexes.CPU_ArchitectureIndex].ToString()));
+
+                CurrentVoltage = mgtObject[Indexes.CPU_CurrentVoltageIndex] != null ? GetCpuCurrentVoltage(int.Parse(mgtObject[Indexes.CPU_CurrentVoltageIndex].ToString())) : CPUVoltage.UNKNOWN;
+                
+                NumberOfLogicalProcessors = int.Parse(mgtObject[Indexes.CPU_NumberOfLogicalProcessorsIndex].ToString());
+                
+                NumberOfCores = int.Parse(mgtObject[Indexes.CPU_NumberOfCoresIndex].ToString());
+                
+                NumberOfEnabledCore = int.Parse(mgtObject[Indexes.CPU_NumberOfEnabledCoreIndex].ToString());
+
+                Level = int.Parse(mgtObject[Indexes.CPU_LevelIndex].ToString());
+                
+                L2CacheSize = mgtObject[Indexes.CPU_L2CacheSizeIndex] != null ? int.Parse(mgtObject[Indexes.CPU_L2CacheSizeIndex].ToString()) : -1;
+                
+                L2CacheSpeed = mgtObject[Indexes.CPU_L2CacheSpeedIndex] != null ? int.Parse(mgtObject[Indexes.CPU_L2CacheSpeedIndex].ToString()) : -1;
+                
+                L3CacheSize = mgtObject[Indexes.CPU_L3CacheSizeIndex] != null ? int.Parse(mgtObject[Indexes.CPU_L3CacheSizeIndex].ToString()) : -1;
+                
+                L3CacheSpeed = mgtObject[Indexes.CPU_L3CacheSpeedIndex] != null ? int.Parse(mgtObject[Indexes.CPU_L3CacheSpeedIndex].ToString()) : -1;
+
+                ThreadCount = mgtObject[Indexes.CPU_ThreadCountIndex] != null ? int.Parse(mgtObject[Indexes.CPU_ThreadCountIndex].ToString()) : -1;
+
+                var success = bool.TryParse(mgtObject[Indexes.CPU_VirtualizationFirmwareEnabledIndex].ToString(), out bool virtualFlag);
+                VirtualizationFirmwareEnabled = success ? (virtualFlag ? "ENABLED" : "DISABLED") : "UNKNOWN";
 
                 return 0;
             }
-            catch (Exception ex)
+            catch
             {
-#if DEBUG
-                Console.WriteLine($"Exception Message: {ex.Message}");
-#endif
                 return -1;
             }
-
         }
 
         /// <summary>
@@ -229,14 +245,14 @@ namespace SystemInfoExplorer
         /// <returns>string</returns>
         public override string ToString()
         {
-            StringBuilder str = new StringBuilder();
+            StringBuilder str = new();
 
             str.Append($"Device ID: {DeviceID}\n");
             str.Append($"Name: {Id}\n");
             str.Append($"Current Clock Speed (MHz): {CurrentClockSpeed}, Max. Clock Speed (MHz): {MaxClockSpeed}\n");
             str.Append($"Architecture: {Architecture}\n");
 
-            if (Manufacturer != String.Empty)
+            if (Manufacturer != string.Empty)
                 str.Append($"Manufacturer: {Manufacturer}\n");
 
             str.Append($"NumberOfCores: {NumberOfCores}\n");
@@ -246,32 +262,28 @@ namespace SystemInfoExplorer
             return str.ToString();
         }
 
+        #endregion
+
+        #region Private methods
+
         /// <summary>
         /// This functions converts the CPU architecture from enumeration to string
         /// </summary>
         /// <param name="architecture">the CPU architecture (int)</param>
         /// <returns>the CPU architecture (string)</returns>
-        protected CPU_ARCHITECTURE GetCpuArchitecture(int architecture)
+        private static CPUArchitecture GetCpuArchitecture(int architecture)
         {
-            switch (architecture)
+            return architecture switch
             {
-                case 0:
-                    return CPU_ARCHITECTURE.X86;
-                case 1:
-                    return CPU_ARCHITECTURE.MIPS;
-                case 2:
-                    return CPU_ARCHITECTURE.ALPHA;
-                case 3:
-                    return CPU_ARCHITECTURE.POWERPC;
-                case 5:
-                    return CPU_ARCHITECTURE.ARM;
-                case 6:
-                    return CPU_ARCHITECTURE.IA64;
-                case 9:
-                    return CPU_ARCHITECTURE.X64;
-                default:
-                    return CPU_ARCHITECTURE.NONE;
-            }
+                0 => CPUArchitecture.X86,
+                1 => CPUArchitecture.MIPS,
+                2 => CPUArchitecture.ALPHA,
+                3 => CPUArchitecture.POWERPC,
+                5 => CPUArchitecture.ARM,
+                6 => CPUArchitecture.IA64,
+                9 => CPUArchitecture.X64,
+                _ => CPUArchitecture.NONE,
+            };
         }
 
         /// <summary>
@@ -279,28 +291,19 @@ namespace SystemInfoExplorer
         /// </summary>
         /// <param name="status">the CPU status (int)</param>
         /// <returns>the CPU status (string)</returns>
-        protected CPU_STATUS GetCpuStatus(int status)
+        private static CPUStatus GetCpuStatus(int status)
         {
-            switch (status)
+            return status switch
             {
-                case 0:
-                    return CPU_STATUS.UNKNOWN;
-                case 1:
-                    return CPU_STATUS.ENABLED;
-                case 2:
-                    return CPU_STATUS.DISABLED_USER;
-                case 3:
-                    return CPU_STATUS.DISABLED_BIOS;
-                case 4:
-                    return CPU_STATUS.IDLE;
-                case 5:
-                case 6:
-                    return CPU_STATUS.RESERVED;
-                case 7:
-                    return CPU_STATUS.OTHER;
-                default:
-                    return CPU_STATUS.NONE;
-            }
+                0 => CPUStatus.UNKNOWN,
+                1 => CPUStatus.ENABLED,
+                2 => CPUStatus.DISABLED_USER,
+                3 => CPUStatus.DISABLED_BIOS,
+                4 => CPUStatus.IDLE,
+                5 or 6 => CPUStatus.RESERVED,
+                7 => CPUStatus.OTHER,
+                _ => CPUStatus.NONE,
+            };
         }
 
         /// <summary>
@@ -308,9 +311,9 @@ namespace SystemInfoExplorer
         /// </summary>
         /// <param name="family">the CPU family (int)</param>
         /// <returns>the CPU family (string)</returns>
-        protected CPU_FAMILY GetCpuFamily(int family)
+        private static CPUFamily GetCpuFamily(int family)
         {
-            return (CPU_FAMILY)family;
+            return (CPUFamily)family;
         }
 
         /// <summary>
@@ -318,12 +321,11 @@ namespace SystemInfoExplorer
         /// </summary>
         /// <param name="voltage">the CPU current voltage (int)</param>
         /// <returns>the CPU current voltage (string)</returns>
-        protected CPU_VOLTAGE GetCpuCurrentVoltage(int voltage)
+        private static CPUVoltage GetCpuCurrentVoltage(int voltage)
         {
-            return (CPU_VOLTAGE)voltage;
+            return (CPUVoltage)voltage;
         }
 
+        #endregion
     }
-
-    
 }

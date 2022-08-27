@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MachineInfo.System.Enumerations;
+using MachineInfo.System.Internal;
 using System.Management;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SystemInfoExplorer
+namespace MachineInfo.System.Information
 {
     /// <summary>
-    /// \class MemoryBankInfo 
+    /// Class <see cref="MemoryBankInfo"/>
+    /// <para />
     /// Captures the main properties of a MemoryBankInfo structure.
     /// It uses a subset of the properties defined in the WMI class: Win32_PhysicalMemory
+    /// <para />
     /// For more information, <see href="https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-physicalmemory">Win32_PhysicalMemory class</see>
     /// </summary>
     public class MemoryBankInfo
     {
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public MemoryBankInfo()
-        {
-        }
+        #region Public properties
 
         /// <summary>
         /// The memory bank info identifier
@@ -120,12 +114,16 @@ namespace SystemInfoExplorer
         /// <summary>
         /// Implementation form factor for the chip.
         /// </summary>
-        public MEM_BANK_FORM_FACTOR FormFactor { get; set; }
+        public MemoryBankFormFactor FormFactor { get; set; }
 
         /// <summary>
         /// Total capacity of the physical memory—in bytes.
         /// </summary>
         public long Capacity { get; set; }
+
+        #endregion
+
+        #region Public methods
 
         /// <summary>
         /// This function parses the management object structure to extract the memory bank info fields.
@@ -136,52 +134,70 @@ namespace SystemInfoExplorer
         {
             try
             {
-                Capacity = long.Parse(mgtObject["Capacity"].ToString());
+                Capacity = long.Parse(mgtObject[Indexes.MemoryBank_CapacityIndex].ToString());
 
-                Id = (mgtObject["Name"] == null) ? "" : mgtObject["Name"].ToString();
-                BankLabel = (mgtObject["BankLabel"] == null) ? "" : mgtObject["BankLabel"].ToString();
-                Description = (mgtObject["Description"] == null) ? "" : mgtObject["Description"].ToString();
-                DeviceLocator = (mgtObject["DeviceLocator"] == null) ? "" : mgtObject["DeviceLocator"].ToString();
-                Manufacturer = (mgtObject["Manufacturer"] == null) ? "" : mgtObject["Manufacturer"].ToString();
+                Id = mgtObject[Indexes.MemoryBank_IdIndex] != null ? mgtObject[Indexes.MemoryBank_IdIndex].ToString() : string.Empty;
 
-                SerialNumber = mgtObject["SerialNumber"].ToString();
-                SKU = (mgtObject["SKU"] == null) ? "" : mgtObject["SKU"].ToString();
-                Status = (mgtObject["Status"] == null) ? "" : mgtObject["Status"].ToString();
-                Model = (mgtObject["Model"] == null) ? "" : mgtObject["Model"].ToString();
-                OtherIdentifyingInfo = (mgtObject["OtherIdentifyingInfo"] == null) ? "" : mgtObject["OtherIdentifyingInfo"].ToString();
-                PartNumber = (mgtObject["PartNumber"] == null) ? "" : mgtObject["PartNumber"].ToString();
+                BankLabel = mgtObject[Indexes.MemoryBank_BankLabelIndex] == null ? string.Empty : mgtObject[Indexes.MemoryBank_BankLabelIndex].ToString();
 
-                DataWidth = int.Parse(mgtObject["DataWidth"].ToString());
-                Speed = int.Parse(mgtObject["Speed"].ToString());
-                SMBIOSMemoryType = int.Parse(mgtObject["SMBIOSMemoryType"].ToString());
+                Description = mgtObject[Indexes.MemoryBank_DescriptionIndex] != null ? mgtObject[Indexes.MemoryBank_DescriptionIndex].ToString() : string.Empty;
 
-                Tag = (mgtObject["Tag"] == null) ? "" : mgtObject["Tag"].ToString();
-                Version = (mgtObject["Version"] == null) ? "" : mgtObject["Version"].ToString();
-                TotalWidth = int.Parse(mgtObject["TotalWidth"].ToString());
-                TypeDetail = int.Parse(mgtObject["TypeDetail"].ToString());
-                PositionInRow = (mgtObject["PositionInRow"] == null) ? -1 : int.Parse(mgtObject["PositionInRow"].ToString());
-                FormFactor = GetMemBankFormFactor(int.Parse(mgtObject["FormFactor"].ToString()));
+                DeviceLocator = mgtObject[Indexes.MemoryBank_DeviceLocatorIndex] != null ? mgtObject[Indexes.MemoryBank_DeviceLocatorIndex].ToString() : string.Empty;
+
+                Manufacturer = mgtObject[Indexes.MemoryBank_ManufacturerIndex] != null ? mgtObject[Indexes.MemoryBank_ManufacturerIndex].ToString() : string.Empty;
+
+                SerialNumber = mgtObject[Indexes.MemoryBank_SerialNumberIndex].ToString();
+
+                SKU = mgtObject[Indexes.MemoryBank_SKUIndex] != null ? mgtObject[Indexes.MemoryBank_SKUIndex].ToString() : string.Empty;
+
+                Status = mgtObject[Indexes.MemoryBank_StatusIndex] != null ? mgtObject[Indexes.MemoryBank_StatusIndex].ToString() : string.Empty;
+
+                Model = mgtObject[Indexes.MemoryBank_ModelIndex] != null ? mgtObject[Indexes.MemoryBank_ModelIndex].ToString() : string.Empty;
+
+                OtherIdentifyingInfo = mgtObject[Indexes.MemoryBank_OtherIdentifyingInfoIndex] != null ? mgtObject[Indexes.MemoryBank_OtherIdentifyingInfoIndex].ToString() : string.Empty;
+
+                PartNumber = mgtObject[Indexes.MemoryBank_PartNumberIndex] != null ? mgtObject[Indexes.MemoryBank_PartNumberIndex].ToString() : string.Empty;
+
+                DataWidth = int.Parse(mgtObject[Indexes.MemoryBank_DataWidthIndex].ToString());
+
+                Speed = int.Parse(mgtObject[Indexes.MemoryBank_SpeedIndex].ToString());
+
+                SMBIOSMemoryType = int.Parse(mgtObject[Indexes.MemoryBank_SMBIOSMemoryTypeIndex].ToString());
+
+                Tag = mgtObject[Indexes.MemoryBank_TagIndex] == null ? string.Empty : mgtObject[Indexes.MemoryBank_TagIndex].ToString();
+
+                Version = mgtObject[Indexes.MemoryBank_VersionIndex] == null ? string.Empty : mgtObject[Indexes.MemoryBank_VersionIndex].ToString();
+
+                TotalWidth = int.Parse(mgtObject[Indexes.MemoryBank_TotalWidthIndex].ToString());
+
+                TypeDetail = int.Parse(mgtObject[Indexes.MemoryBank_TypeDetailIndex].ToString());
+
+                PositionInRow = mgtObject[Indexes.MemoryBank_PositionInRowIndex] == null ? -1 : int.Parse(mgtObject[Indexes.MemoryBank_PositionInRowIndex].ToString());
+
+                FormFactor = GetMemBankFormFactor(int.Parse(mgtObject[Indexes.MemoryBank_FormFactorIndex].ToString()));
 
                 return 0;
             }
-            catch (Exception ex)
+            catch
             {
-#if DEBUG
-                Console.WriteLine($"Exception Message: {ex.Message}");
-#endif
                 return -1;
             }
-
         }
+
+        #endregion
+
+        #region Private methods
 
         /// <summary>
         /// This functions converts the memory bank form factor from enumeration to string
         /// </summary>
         /// <param name="formfactor">the memory bank form factor (int)</param>
         /// <returns>the memory bank form factor (string)</returns>
-        protected MEM_BANK_FORM_FACTOR GetMemBankFormFactor(int formfactor)
+        private static MemoryBankFormFactor GetMemBankFormFactor(int formfactor)
         {
-            return (MEM_BANK_FORM_FACTOR)formfactor;
+            return (MemoryBankFormFactor)formfactor;
         }
+
+        #endregion
     }
 }

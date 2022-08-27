@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MachineInfo.System.Internal;
 using System.Management;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SystemInfoExplorer
+namespace MachineInfo.System.Information
 {
     /// <summary>
-    /// \class DiskPartition 
+    /// Class <see cref="DiskPartitionInfo"/>
+    /// <para />
     /// Captures the properties of the disk partitions installed on the computer.
     /// It uses a subset of the properties defined in the WMI class: Win32_DiskPartition
+    /// <para />
     /// For more information, <see href="https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-diskpartition">Win32_DiskPartition</see>
     /// </summary>
-    public class DiskPartition
+    public class DiskPartitionInfo
     {
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public DiskPartition()
-        {
-        }
+        #region Public properties
 
         /// <summary>
         /// The disk partition identifier
@@ -71,23 +65,27 @@ namespace SystemInfoExplorer
         /// <summary>
         /// Indicates whether the computer can be booted from this partition.
         /// </summary>
-        public bool Bootable { get; set; }
+        public bool? Bootable { get; set; }
 
         /// <summary>
         /// Partition is the active partition. The operating system uses the active 
         /// partition when booting from a hard disk.
         /// </summary>
-        public bool BootPartition { get; set; }
+        public bool? BootPartition { get; set; }
 
         /// <summary>
         /// If True, this is the primary partition.
         /// </summary>
-        public bool PrimaryPartition { get; set; }
+        public bool? PrimaryPartition { get; set; }
 
         /// <summary>
         /// If True, the partition information has changed.
         /// </summary>
-        public bool RewritePartition { get; set; }
+        public bool? RewritePartition { get; set; }
+
+        #endregion
+
+        #region Public methods
 
         /// <summary>
         /// This function parses the management object structure to extract the disk partition fields.
@@ -98,52 +96,50 @@ namespace SystemInfoExplorer
         {
             try
             {
-                Id = mgtObject["Name"].ToString();
-                DeviceID = mgtObject["DeviceID"].ToString();
+                Id = mgtObject[Indexes.DiskPartition_IdIndex].ToString();
 
-                Size = (mgtObject["Size"] == null) ? -1 : long.Parse(mgtObject["Size"].ToString());
-                NumberOfBlocks = (mgtObject["NumberOfBlocks"] == null) ? -1 : long.Parse(mgtObject["NumberOfBlocks"].ToString());
+                DeviceID = mgtObject[Indexes.DiskPartition_DeviceIDIndex].ToString();
 
-                Status = (mgtObject["Status"] == null) ? "" : mgtObject["Status"].ToString();
-                SystemCreationClassName = mgtObject["SystemCreationClassName"].ToString();
-                SystemName = mgtObject["SystemName"].ToString();
-                SystemName = mgtObject["Type"].ToString();
+                Size = mgtObject[Indexes.DiskPartition_SizeIndex] != null ? long.Parse(mgtObject[Indexes.DiskPartition_SizeIndex].ToString()) : -1;
 
-                if(mgtObject["Bootable"] != null)
+                NumberOfBlocks = mgtObject[Indexes.DiskPartition_NumberOfBlocksIndex] != null ? long.Parse(mgtObject[Indexes.DiskPartition_NumberOfBlocksIndex].ToString()) : -1;
+
+                Status = mgtObject[Indexes.DiskPartition_StatusIndex] != null ? mgtObject[Indexes.DiskPartition_StatusIndex].ToString() : string.Empty;
+
+                SystemCreationClassName = mgtObject[Indexes.DiskPartition_SystemCreationClassNameIndex].ToString();
+
+                SystemName = mgtObject[Indexes.DiskPartition_SystemNameIndex].ToString();
+
+                SystemName = mgtObject[Indexes.DiskPartition_TypeIndex].ToString();
+
+                if (mgtObject[Indexes.DiskPartition_BootableIndex] != null)
                 {
-                    bool temp;
-                    Boolean.TryParse(mgtObject["Bootable"].ToString(), out temp);
-                    Bootable = temp;
+                    var success = bool.TryParse(mgtObject[Indexes.DiskPartition_BootableIndex].ToString(), out bool temp);
+                    Bootable = success ? temp : null;
                 }
 
-                if (mgtObject["BootPartition"] != null)
+                if (mgtObject[Indexes.DiskPartition_BootPartitionIndex] != null)
                 {
-                    bool temp;
-                    Boolean.TryParse(mgtObject["BootPartition"].ToString(), out temp);
-                    BootPartition = temp;
+                    var success = bool.TryParse(mgtObject[Indexes.DiskPartition_BootPartitionIndex].ToString(), out bool temp);
+                    BootPartition = success ? temp : null;
                 }
 
-                if (mgtObject["PrimaryPartition"] != null)
+                if (mgtObject[Indexes.DiskPartition_PrimaryPartitionIndex] != null)
                 {
-                    bool temp;
-                    Boolean.TryParse(mgtObject["PrimaryPartition"].ToString(), out temp);
-                    PrimaryPartition = temp;
+                    var success = bool.TryParse(mgtObject[Indexes.DiskPartition_PrimaryPartitionIndex].ToString(), out bool temp);
+                    PrimaryPartition = success ? temp : null;
                 }
 
-                if (mgtObject["RewritePartition"] != null)
+                if (mgtObject[Indexes.DiskPartition_RewritePartitionIndex] != null)
                 {
-                    bool temp;
-                    Boolean.TryParse(mgtObject["RewritePartition"].ToString(), out temp);
-                    RewritePartition = temp;
+                    var success = bool.TryParse(mgtObject[Indexes.DiskPartition_RewritePartitionIndex].ToString(), out bool temp);
+                    RewritePartition = success ? temp : null;
                 }
-                
+
                 return 0;
             }
-            catch (Exception ex)
+            catch
             {
-#if DEBUG
-                Console.WriteLine($"Exception Message: {ex.Message}");
-#endif
                 return -1;
             }
         }
@@ -154,20 +150,20 @@ namespace SystemInfoExplorer
         /// <returns>string</returns>
         public override string ToString()
         {
-            StringBuilder str = new StringBuilder();
+            StringBuilder str = new();
 
             str.Append($"Name: {Id}\n");
             str.Append($"Size (Bytes): {Size}\n");
             str.Append($"Number Of Blocks: {NumberOfBlocks}\n");
 
-            if(Status != String.Empty)
+            if (Status != string.Empty)
                 str.Append($"Partition Status: {Status}\n");
-            
+
             str.Append($"Primary Partition: {PrimaryPartition}\n");
 
             return str.ToString();
         }
 
-
+        #endregion
     }
 }

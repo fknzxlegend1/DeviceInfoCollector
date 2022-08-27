@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Management;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
-namespace SystemInfoExplorer
+namespace MachineInfo.System.Information
 {
     /// <summary>
     /// \class MemoryInfo 
@@ -14,12 +9,7 @@ namespace SystemInfoExplorer
     /// </summary>
     public class MemoryInfo
     {
-        /// <summary>
-        /// Default constructors
-        /// </summary>
-        public MemoryInfo()
-        {
-        }
+        #region Public properties
 
         /// <summary>
         /// Number of computer memory banks
@@ -41,6 +31,10 @@ namespace SystemInfoExplorer
         /// </summary>
         public long TotalSizeMegaBytes { get; set; }
 
+        #endregion
+
+        #region Public methods
+
         /// <summary>
         /// It uses the information provided in a list of MemoryBankInfo instances in order to set the properties
         /// of the MemoryInfo class
@@ -53,29 +47,23 @@ namespace SystemInfoExplorer
             {
                 if (banks == null)
                     return -2;
-                
-                this.NoOfMemoryBanks = banks.Count;
-                this.DataWidth       = banks[0].DataWidth;
+
+                NoOfMemoryBanks = banks.Count;
+                DataWidth = banks[0].DataWidth;
 
                 long size = 0;
                 foreach (var item in banks)
-                {                    
+                {
                     size += item.Capacity;
                 }
 
-                this.TotalSize = size;
-                this.TotalSizeMegaBytes = size / (1024 * 1024);
-#if DEBUG
-                Console.WriteLine($"Size (bytes): {size}\nSize (Mb): {size / (1024 * 1024)}");
-#endif
+                TotalSize = size;
+                TotalSizeMegaBytes = size / (1024 * 1024);
 
                 return 0;
             }
-            catch (Exception ex)
+            catch
             {
-#if DEBUG
-                Console.WriteLine($"Exception Message: {ex.Message}");
-#endif
                 return -1;
             }
         }
@@ -86,7 +74,7 @@ namespace SystemInfoExplorer
         /// <returns>string</returns>
         public override string ToString()
         {
-            StringBuilder str = new StringBuilder();
+            StringBuilder str = new();
 
             str.Append($"Number of Memory Banks: {NoOfMemoryBanks}\n");
             str.Append($"Memory Data Width: {DataWidth}\n");
@@ -95,5 +83,7 @@ namespace SystemInfoExplorer
 
             return str.ToString();
         }
+
+        #endregion
     }
 }

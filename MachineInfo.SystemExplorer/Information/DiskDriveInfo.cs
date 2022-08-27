@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MachineInfo.System.Internal;
 using System.Management;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SystemInfoExplorer
+namespace MachineInfo.System.Information
 {
     /// <summary>
-    /// \class DiskDriveInfo 
+    /// Class <see cref="DiskDriveInfo"/>
+    /// <para />
     /// Captures the properties of the disk drives installed on the computer.
     /// It uses a subset of the properties defined in the WMI class: Win32_DiskDrive
-    /// For more information, <see href="https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-diskdrive">Win32_DiskDrive</see>
+    /// <para />
+    /// For more information, see <see href="https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-diskdrive">Win32_DiskDrive</see>
     /// </summary>
     public class DiskDriveInfo
     {
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public DiskDriveInfo()
-        {
-        }
+        #region Public properties
 
         /// <summary>
         /// Disk drive identifier
@@ -113,6 +107,10 @@ namespace SystemInfoExplorer
         /// </summary>
         public int TracksPerCylinder { get; set; }
 
+        #endregion
+
+        #region Public methods
+
         /// <summary>
         /// This function parses the management object structure to extract the disk drive info fields.
         /// </summary>
@@ -122,60 +120,47 @@ namespace SystemInfoExplorer
         {
             try
             {
-                Id = mgtObject["Name"].ToString();
-                DeviceID = mgtObject["DeviceID"].ToString();
-                Model = mgtObject["Model"].ToString();
-                Manufacturer = mgtObject["Manufacturer"].ToString();
+                Id = mgtObject[Indexes.DiskDrive_IdIndex].ToString();
 
-                SerialNumber = mgtObject["SerialNumber"].ToString().Trim();
-                Status = mgtObject["Status"].ToString();
-                SystemCreationClassName = mgtObject["SystemCreationClassName"].ToString();
-                SystemName = mgtObject["SystemName"].ToString();
+                DeviceID = mgtObject[Indexes.DiskDrive_DeviceIDIndex].ToString();
 
-                TotalCylinders = (mgtObject["TotalCylinders"] == null) ? -1 : long.Parse(mgtObject["TotalCylinders"].ToString());
-                TotalHeads = (mgtObject["TotalHeads"] == null) ? -1 : long.Parse(mgtObject["TotalHeads"].ToString());
-                TotalSectors = (mgtObject["TotalSectors"] == null) ? -1 : long.Parse(mgtObject["TotalSectors"].ToString());
-                TotalTracks = (mgtObject["TotalTracks"] == null) ? -1 : long.Parse(mgtObject["TotalTracks"].ToString());
-                Size = (mgtObject["Size"] == null) ? -1 : long.Parse(mgtObject["Size"].ToString());
+                Model = mgtObject[Indexes.DiskDrive_ModelIndex].ToString();
 
-                NumberOfMediaSupported = (mgtObject["NumberOfMediaSupported"] == null) ? -1 : int.Parse(mgtObject["NumberOfMediaSupported"].ToString());
-                Partitions = (mgtObject["Partitions"] == null) ? -1 : int.Parse(mgtObject["Partitions"].ToString());
-                StatusInfo = GetStatusInfo((mgtObject["StatusInfo"] == null) ? -1 : int.Parse(mgtObject["StatusInfo"].ToString()));
-                TracksPerCylinder = (mgtObject["TracksPerCylinder"] == null) ? -1 : int.Parse(mgtObject["TracksPerCylinder"].ToString());
-                //Signature = (mgtObject["Signature"] == null) ? -1 : int.Parse(mgtObject["Signature"].ToString());
+                Manufacturer = mgtObject[Indexes.DiskDrive_ManufacturerIndex].ToString();
+
+                SerialNumber = mgtObject[Indexes.DiskDrive_SerialNumberIndex].ToString().Trim();
+
+                Status = mgtObject[Indexes.DiskDrive_StatusIndex].ToString();
+
+                SystemCreationClassName = mgtObject[Indexes.DiskDrive_SystemCreationClassNameIndex].ToString();
+
+                SystemName = mgtObject[Indexes.DiskDrive_SystemNameIndex].ToString();
+
+                TotalCylinders = mgtObject[Indexes.DiskDrive_TotalCylindersIndex] == null ? -1 : long.Parse(mgtObject[Indexes.DiskDrive_TotalCylindersIndex].ToString());
+
+                TotalHeads = mgtObject[Indexes.DiskDrive_TotalHeadsIndex] == null ? -1 : long.Parse(mgtObject[Indexes.DiskDrive_TotalHeadsIndex].ToString());
+
+                TotalSectors = mgtObject[Indexes.DiskDrive_TotalSectorsIndex] == null ? -1 : long.Parse(mgtObject[Indexes.DiskDrive_TotalSectorsIndex].ToString());
+
+                TotalTracks = mgtObject[Indexes.DiskDrive_TotalTracksIndex] == null ? -1 : long.Parse(mgtObject[Indexes.DiskDrive_TotalTracksIndex].ToString());
+
+                Size = mgtObject[Indexes.DiskDrive_SizeIndex] == null ? -1 : long.Parse(mgtObject[Indexes.DiskDrive_SizeIndex].ToString());
+
+                NumberOfMediaSupported = mgtObject[Indexes.DiskDrive_NumberOfMediaSupportedIndex] == null ? -1 : int.Parse(mgtObject[Indexes.DiskDrive_NumberOfMediaSupportedIndex].ToString());
+
+                Partitions = mgtObject[Indexes.DiskDrive_PartitionsIndex] == null ? -1 : int.Parse(mgtObject[Indexes.DiskDrive_PartitionsIndex].ToString());
+
+                StatusInfo = GetStatusInfo(mgtObject[Indexes.DiskDrive_StatusInfoIndex] == null ? -1 : int.Parse(mgtObject[Indexes.DiskDrive_StatusInfoIndex].ToString()));
+
+                TracksPerCylinder = mgtObject[Indexes.DiskDrive_TracksPerCylinderIndex] == null ? -1 : int.Parse(mgtObject[Indexes.DiskDrive_TracksPerCylinderIndex].ToString());
+
+                Signature = (mgtObject[Indexes.DiskDrive_SignatureIndex] == null) ? -1 : int.Parse(mgtObject[Indexes.DiskDrive_SignatureIndex].ToString());
 
                 return 0;
             }
-            catch (Exception ex)
+            catch
             {
-#if DEBUG
-                Console.WriteLine($"Exception Message: {ex.Message}");
-#endif
                 return -1;
-            }
-        }
-
-        /// <summary>
-        /// This functions converts the disk drive status from enumeration to string
-        /// </summary>
-        /// <param name="status">the disk drive status (int)</param>
-        /// <returns>the disk drive status (string)</returns>
-        protected string GetStatusInfo(int status)
-        {
-            switch (status)
-            {
-                case 1:
-                    return "OTHER";
-                case 2:
-                    return "UNKNWON";
-                case 3:
-                    return "ENABLED";
-                case 4:
-                    return "DISABLED";
-                case 5:
-                    return "NOT APPLICABLE";
-                default:
-                    return "";
             }
         }
 
@@ -185,17 +170,17 @@ namespace SystemInfoExplorer
         /// <returns>string</returns>
         public override string ToString()
         {
-            StringBuilder str = new StringBuilder();
+            StringBuilder str = new();
 
             str.Append($"Name: {Id}\n");
 
-            if (Manufacturer != String.Empty)
+            if (Manufacturer != string.Empty)
                 str.Append($"Manufacturer: {Manufacturer}\n");
 
-            if(SerialNumber != String.Empty)
+            if (SerialNumber != string.Empty)
                 str.Append($"SerialNumber: {SerialNumber}\n");
 
-            if (Model != String.Empty)
+            if (Model != string.Empty)
                 str.Append($"Model: {Model}\n");
 
             if (Size >= 0)
@@ -203,11 +188,34 @@ namespace SystemInfoExplorer
 
             str.Append($"Partitions: {Partitions}\n");
 
-            if (Status != String.Empty)
+            if (Status != string.Empty)
                 str.Append($"Status: {Status}\n");
 
             return str.ToString();
         }
 
+        #endregion
+
+        #region Private methods
+
+        /// <summary>
+        /// This functions converts the disk drive status from enumeration to string
+        /// </summary>
+        /// <param name="status">the disk drive status (int)</param>
+        /// <returns>the disk drive status (string)</returns>
+        private static string GetStatusInfo(int status)
+        {
+            return status switch
+            {
+                1 => "OTHER",
+                2 => "UNKNWON",
+                3 => "ENABLED",
+                4 => "DISABLED",
+                5 => "NOT APPLICABLE",
+                _ => "",
+            };
+        }
+
+        #endregion
     }
 }
