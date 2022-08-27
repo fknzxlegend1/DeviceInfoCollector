@@ -12,6 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MachineInfo.SystemExplorer\MachineInfo.System.csproj" />
+    <ProjectReference Include="..\MachineInfo.System\MachineInfo.System.csproj" />
   </ItemGroup>
 </Project>
