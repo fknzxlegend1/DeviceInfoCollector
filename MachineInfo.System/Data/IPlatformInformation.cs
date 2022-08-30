@@ -2,7 +2,7 @@
 
 /*
 
-Copyright 2019 Sabeur Lafi
+Copyright 2022 Bogdan Bara, Sabeur Lafi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -16,106 +16,53 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using System.Collections;
 
-namespace MachineInfo.System.Information
+namespace MachineInfo.System.Data
 {
-    /// <summary>
-    /// \class PlatformInfo 
-    /// Captures the properties of the computer's platform.
-    /// </summary>
-    public class PlatformInfo
+    public interface IPlatformInformation
     {
-        #region Public properties
-
         /// <summary>
         /// A flag indicating the operating system is 64-bit
         /// </summary>
-        public bool is64BitOperatingSystem;
+        bool Is64BitOperatingSystem { get; }
 
         /// <summary>
         /// The current machine name
         /// </summary>
-        public string machineName;
-
-        /// <summary>
-        /// The operating system name
-        /// </summary>
-        public OperatingSystem os;
+        string MachineName { get; }
 
         /// <summary>
         /// The platform identifier
         /// </summary>
-        public PlatformID platform;
+        PlatformID Platform { get; }
 
         /// <summary>
         /// The unstalled service pack
         /// </summary>
-        public string servicePack;
+        string ServicePack { get; }
 
         /// <summary>
         /// The operating system version
         /// </summary>
-        public string version;
+        string Version { get; }
 
         /// <summary>
         /// The number of computer processors
         /// </summary>
-        public int processorCount;
+        int ProcessorCount { get; }
 
         /// <summary>
         /// The list of logical drives
         /// </summary>
-        public string[] logicalDrives;
+        string[] LogicalDrives { get; }
 
         /// <summary>
         /// A dictionary containing the list of enviroment variables
         /// </summary>
-        public IDictionary envVars;
+        IDictionary EnvironmentVariables { get; }
 
         /// <summary>
         /// CLR version
         /// </summary>
-        public Version clrVersion;
-
-        #endregion
-
-        #region Public methods
-
-        /// <summary>
-        /// Gets the system information (including OS, logical drives, env. variables, etc.)
-        /// </summary>
-        /// <returns>0 if success, -1 if an exception had occured</returns>
-        public int GetSystemInfo()
-        {
-            try
-            {
-                is64BitOperatingSystem = Environment.Is64BitOperatingSystem;
-
-                machineName = Environment.MachineName;
-
-                os = Environment.OSVersion;
-
-                platform = os.Platform;
-
-                servicePack = os.ServicePack;
-
-                clrVersion = Environment.Version;
-
-                version = os.VersionString;
-
-                processorCount = Environment.ProcessorCount;
-
-                logicalDrives = Environment.GetLogicalDrives();
-                
-                envVars = Environment.GetEnvironmentVariables();
-                
-                return 0;
-            }
-            catch
-            {
-                return -1;
-            }
-        }
-
-        #endregion
+        string CLRVersion { get; }
     }
 }

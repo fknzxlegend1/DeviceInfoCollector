@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace MachineInfo.System.Internal
 {
-    internal static class Indexes
+    internal static class WMI_Indexes
     {
         #region CPU indexes
 

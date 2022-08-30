@@ -1,4 +1,4 @@
-#region License information
+﻿#region License information
 
 /*
 
@@ -14,26 +14,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #endregion
 
-using MachineInfo.System;
+using MachineInfo.System.Data;
+using MachineInfo.System.Monitors.Base;
 
-namespace MachineInfo.CollectorAgent
+namespace MachineInfo.System.Monitors
 {
-    public class Worker : BackgroundService
+    internal interface IVideoControllerMonitor : IBaseMonitor<IEnumerable<IVideoControllerInformation>>
     {
-        private readonly ISystemMonitor systemMonitor;
-        private readonly PeriodicTimer timer = new(TimeSpan.FromSeconds(5));
-
-        public Worker(ISystemMonitor systemMonitor)
-        {
-            this.systemMonitor = systemMonitor;
-        }
-
-        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
-        {
-            while (await timer.WaitForNextTickAsync(cancellationToken) && !cancellationToken.IsCancellationRequested)
-            {
-                var data = systemMonitor.CollectData();
-            }
-        }
     }
 }

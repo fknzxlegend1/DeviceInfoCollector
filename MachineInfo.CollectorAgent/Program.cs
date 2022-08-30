@@ -15,10 +15,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #endregion
 
 using MachineInfo.CollectorAgent;
+using MachineInfo.System;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
+        services.AddSystemMonitor();
         services.AddHostedService<Worker>();
     })
     .Build();
