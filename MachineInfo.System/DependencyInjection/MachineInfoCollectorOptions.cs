@@ -1,13 +1,13 @@
 ﻿namespace MachineInfo.System
 {
-    public class MachineInfoCollectorOptions
+    public class SystemInfoCollectorOptions
     {
-        public bool DisableCPUInfoCollection { get; set; }
-        public bool DisableDiskDriveInfoCollection { get; set; }
-        public bool DisableDiskPartitionInfoCollection { get; set; }
-        public bool DisableMemoryBankInfoCollection { get; set; }
-        public bool DisableMemoryInfoCollection { get; set; }
-        public bool DisablePlatformInfoCollection { get; set; }
-        public bool DisableVideoControllerInfoCollection { get; set; }
+        public bool EnableCPUInfoCollection { get; set; }
+        public bool EnableDiskDriveInfoCollection { get; set; }
+        public bool EnableDiskPartitionInfoCollection { get; set; }
+        public bool EnableMemoryBankInfoCollection { get; set; }
+        public bool EnableMemoryInfoCollection { get; set; }
+        public bool EnablePlatformInfoCollection { get; set; }
+        public bool EnableVideoControllerInfoCollection { get; set; }
     }
 }

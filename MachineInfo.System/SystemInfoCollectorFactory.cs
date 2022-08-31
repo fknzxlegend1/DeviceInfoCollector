@@ -7,12 +7,12 @@ namespace MachineInfo.System
     {
         private static ISystemInfoCollector systemMonitor;
 
-        public static ISystemInfoCollector Create(Action<MachineInfoCollectorOptions> options = null)
+        public static ISystemInfoCollector Create(Action<SystemInfoCollectorOptions> options = null)
         {
             if (systemMonitor != null)
                 return systemMonitor;
 
-            var collectorOptions = new MachineInfoCollectorOptions();
+            var collectorOptions = new SystemInfoCollectorOptions();
             options?.Invoke(collectorOptions);
             
             ICPUInfoCollector cpuMonitor = new CPUInfoCollector();

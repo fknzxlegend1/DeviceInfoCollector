@@ -22,9 +22,10 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         services.AddSystemInfoCollector(options =>
         {
-            options.DisableMemoryBankInfoCollection = true;
-            options.DisableDiskPartitionInfoCollection = true;
-            options.DisableVideoControllerInfoCollection = true;
+            options.EnableCPUInfoCollection = true;
+            options.EnableDiskDriveInfoCollection = true;
+            options.EnableMemoryInfoCollection = true;
+            options.EnablePlatformInfoCollection = true;
         });
         services.AddHostedService<Worker>();
     })

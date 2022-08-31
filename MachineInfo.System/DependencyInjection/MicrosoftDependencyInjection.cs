@@ -23,7 +23,7 @@ namespace MachineInfo.System
 {
     public static class MicrosoftDependencyInjection
     {
-        public static void AddSystemInfoCollector(this IServiceCollection services, Action<MachineInfoCollectorOptions> options = null)
+        public static void AddSystemInfoCollector(this IServiceCollection services, Action<SystemInfoCollectorOptions> options = null)
         {
             services.Configure(options);
 
@@ -37,7 +37,7 @@ namespace MachineInfo.System
 
             services.AddSingleton<ISystemInfoCollector>((serviceProvider) =>
             {
-                var options = serviceProvider.GetRequiredService<IOptions<MachineInfoCollectorOptions>>().Value;
+                var options = serviceProvider.GetRequiredService<IOptions<SystemInfoCollectorOptions>>().Value;
 
                 var cpuMonitor = serviceProvider.GetService<ICPUInfoCollector>();
                 var diskDriveMonitor = serviceProvider.GetService<IDiskDriveInfoCollector>();
