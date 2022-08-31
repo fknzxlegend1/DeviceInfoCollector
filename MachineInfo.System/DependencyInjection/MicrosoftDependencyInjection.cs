@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #endregion
 
-using MachineInfo.System.Monitors;
-using MachineInfo.System.Monitors.Implementation;
+using MachineInfo.System.Collectors;
+using MachineInfo.System.Collectors.Implementation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MachineInfo.System
@@ -24,25 +24,25 @@ namespace MachineInfo.System
     {
         public static void AddSystemMonitor(this IServiceCollection services)
         {
-            services.AddSingleton<ICPUMonitor>(new CPUMonitor());
-            services.AddSingleton<IDiskDriveMonitor>(new DiskDriveMonitor());
-            services.AddSingleton<IDiskPartitionMonitor>(new DiskPartitionMonitor());
-            services.AddSingleton<IMemoryBankMonitor>(new MemoryBankMonitor());
-            services.AddSingleton<IMemoryMonitor>(new MemoryMonitor());
-            services.AddSingleton<IPlatformMonitor>(new PlatformMonitor());
-            services.AddSingleton<IVideoControllerMonitor>(new VideoControllerMonitor());
+            services.AddSingleton<ICPUInfoCollector>(new CPUInfoCollector());
+            services.AddSingleton<IDiskDriveInfoCollector>(new DiskDriveInfoCollector());
+            services.AddSingleton<IDiskPartitionInfoCollector>(new DiskPartitionInfoCollector());
+            services.AddSingleton<IMemoryBankInfoCollector>(new MemoryBankInfoCollector());
+            services.AddSingleton<IMemoryInfoCollector>(new MemoryInfoCollector());
+            services.AddSingleton<IPlatformInfoCollector>(new PlatformInfoCollector());
+            services.AddSingleton<IVideoControllerInfoCollector>(new VideoControllerInfoCollector());
 
-            services.AddSingleton<ISystemMonitor>((serviceProvider) =>
+            services.AddSingleton<ISystemInfoCollector>((serviceProvider) =>
             {
-                var cpuMonitor = serviceProvider.GetService<ICPUMonitor>();
-                var diskDriveMonitor = serviceProvider.GetService<IDiskDriveMonitor>();
-                var diskPartitionMonitor = serviceProvider.GetService<IDiskPartitionMonitor>();
-                var memoryBankMonitor = serviceProvider.GetService<IMemoryBankMonitor>();
-                var memoryMonitor = serviceProvider.GetService<IMemoryMonitor>();
-                var platformMonitor = serviceProvider.GetService<IPlatformMonitor>();
-                var videoControllerMonitor = serviceProvider.GetService<IVideoControllerMonitor>();
+                var cpuMonitor = serviceProvider.GetService<ICPUInfoCollector>();
+                var diskDriveMonitor = serviceProvider.GetService<IDiskDriveInfoCollector>();
+                var diskPartitionMonitor = serviceProvider.GetService<IDiskPartitionInfoCollector>();
+                var memoryBankMonitor = serviceProvider.GetService<IMemoryBankInfoCollector>();
+                var memoryMonitor = serviceProvider.GetService<IMemoryInfoCollector>();
+                var platformMonitor = serviceProvider.GetService<IPlatformInfoCollector>();
+                var videoControllerMonitor = serviceProvider.GetService<IVideoControllerInfoCollector>();
 
-                return new SystemMonitor(cpuMonitor, diskDriveMonitor, diskPartitionMonitor, memoryBankMonitor, memoryMonitor, platformMonitor, videoControllerMonitor);
+                return new SystemInfoCollector(cpuMonitor, diskDriveMonitor, diskPartitionMonitor, memoryBankMonitor, memoryMonitor, platformMonitor, videoControllerMonitor);
             });
         }
     }

@@ -1,4 +1,4 @@
-#region License information
+﻿#region License information
 
 /*
 
@@ -14,26 +14,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #endregion
 
-using MachineInfo.System;
+using MachineInfo.System.Data;
+using MachineInfo.System.Collectors.Base;
 
-namespace MachineInfo.CollectorAgent
+namespace MachineInfo.System.Collectors
 {
-    public class Worker : BackgroundService
+    internal interface IDiskPartitionInfoCollector : IBaseCollector<IEnumerable<IDiskPartitionInfo>>
     {
-        private readonly ISystemInfoCollector systemMonitor;
-        private readonly PeriodicTimer timer = new(TimeSpan.FromSeconds(5));
-
-        public Worker(ISystemInfoCollector systemMonitor)
-        {
-            this.systemMonitor = systemMonitor;
-        }
-
-        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
-        {
-            while (await timer.WaitForNextTickAsync(cancellationToken) && !cancellationToken.IsCancellationRequested)
-            {
-                var data = systemMonitor.Collect();
-            }
-        }
     }
 }

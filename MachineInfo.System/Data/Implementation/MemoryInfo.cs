@@ -1,8 +1,8 @@
-#region License information
+﻿#region License information
 
 /*
 
-Copyright 2022 Bogdan Bara
+Copyright 2022 Bogdan Bara, Sabeur Lafi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -14,26 +14,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #endregion
 
-using MachineInfo.System;
-
-namespace MachineInfo.CollectorAgent
+namespace MachineInfo.System.Data.Implementation
 {
-    public class Worker : BackgroundService
+    internal class MemoryInfo : IMemoryInfo
     {
-        private readonly ISystemInfoCollector systemMonitor;
-        private readonly PeriodicTimer timer = new(TimeSpan.FromSeconds(5));
+        /// <summary>
+        /// Number of computer memory banks
+        /// </summary>
+        public int NoOfMemoryBanks { get; set; }
 
-        public Worker(ISystemInfoCollector systemMonitor)
-        {
-            this.systemMonitor = systemMonitor;
-        }
+        /// <summary>
+        /// The data width of the memory banks
+        /// </summary>
+        public int DataWidth { get; set; }
 
-        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
-        {
-            while (await timer.WaitForNextTickAsync(cancellationToken) && !cancellationToken.IsCancellationRequested)
-            {
-                var data = systemMonitor.Collect();
-            }
-        }
+        /// <summary>
+        /// The total memory size in bytes
+        /// </summary>
+        public long TotalSize { get; set; }
     }
 }
