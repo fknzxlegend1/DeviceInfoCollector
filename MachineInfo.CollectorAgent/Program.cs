@@ -20,7 +20,12 @@ using MachineInfo.System;
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
-        services.AddSystemMonitor();
+        services.AddSystemInfoCollector(options =>
+        {
+            options.DisableMemoryBankInfoCollection = true;
+            options.DisableDiskPartitionInfoCollection = true;
+            options.DisableVideoControllerInfoCollection = true;
+        });
         services.AddHostedService<Worker>();
     })
     .Build();

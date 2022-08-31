@@ -7,11 +7,14 @@ namespace MachineInfo.System
     {
         private static ISystemInfoCollector systemMonitor;
 
-        public static ISystemInfoCollector Create()
+        public static ISystemInfoCollector Create(Action<MachineInfoCollectorOptions> options = null)
         {
             if (systemMonitor != null)
                 return systemMonitor;
 
+            var collectorOptions = new MachineInfoCollectorOptions();
+            options?.Invoke(collectorOptions);
+            
             ICPUInfoCollector cpuMonitor = new CPUInfoCollector();
             IDiskDriveInfoCollector diskDriveMonitor = new DiskDriveInfoCollector();
             IDiskPartitionInfoCollector diskPartitionMonitor = new DiskPartitionInfoCollector();
@@ -20,13 +23,14 @@ namespace MachineInfo.System
             IPlatformInfoCollector platformMonitor = new PlatformInfoCollector();
             IVideoControllerInfoCollector videoControllerMonitor = new VideoControllerInfoCollector();
 
-            systemMonitor = new SystemInfoCollector(cpuMonitor, 
-                                              diskDriveMonitor, 
-                                              diskPartitionMonitor, 
-                                              memoryBankMonitor, 
-                                              memoryMonitor, 
-                                              platformMonitor, 
-                                              videoControllerMonitor);
+            systemMonitor = new SystemInfoCollector(collectorOptions,
+                                                    cpuMonitor, 
+                                                    diskDriveMonitor, 
+                                                    diskPartitionMonitor, 
+                                                    memoryBankMonitor, 
+                                                    memoryMonitor, 
+                                                    platformMonitor, 
+                                                    videoControllerMonitor);
 
             return systemMonitor;
         }

@@ -22,6 +22,8 @@ namespace MachineInfo.System.Collectors.Implementation
 {
     internal class SystemInfoCollector : ISystemInfoCollector
     {
+        private readonly MachineInfoCollectorOptions collectorOptions;
+
         private readonly ICPUInfoCollector CPUMonitor;
         private readonly IDiskDriveInfoCollector DiskDriveMonitor;
         private readonly IDiskPartitionInfoCollector DiskPartitionMonitor;
@@ -30,14 +32,16 @@ namespace MachineInfo.System.Collectors.Implementation
         private readonly IPlatformInfoCollector PlatformMonitor;
         private readonly IVideoControllerInfoCollector VideoControllerMonitor;
 
-        public SystemInfoCollector(ICPUInfoCollector CPUMonitor,
-                             IDiskDriveInfoCollector DiskDriveMonitor,
-                             IDiskPartitionInfoCollector DiskPartitionMonitor,
-                             IMemoryBankInfoCollector MemoryBankMonitor,
-                             IMemoryInfoCollector MemoryMonitor,
-                             IPlatformInfoCollector PlatformMonitor,
-                             IVideoControllerInfoCollector VideoControllerMonitor)
+        public SystemInfoCollector(MachineInfoCollectorOptions collectorOptions,
+                                   ICPUInfoCollector CPUMonitor,
+                                   IDiskDriveInfoCollector DiskDriveMonitor,
+                                   IDiskPartitionInfoCollector DiskPartitionMonitor,
+                                   IMemoryBankInfoCollector MemoryBankMonitor,
+                                   IMemoryInfoCollector MemoryMonitor,
+                                   IPlatformInfoCollector PlatformMonitor,
+                                   IVideoControllerInfoCollector VideoControllerMonitor)
         {
+            this.collectorOptions = collectorOptions;
             this.CPUMonitor = CPUMonitor;
             this.DiskDriveMonitor = DiskDriveMonitor;
             this.DiskPartitionMonitor = DiskPartitionMonitor;
@@ -62,24 +66,36 @@ namespace MachineInfo.System.Collectors.Implementation
             IEnumerable<IMemoryBankInfo> memoryBanksInformation = null;
             IEnumerable<IVideoControllerInfo> videoControllersInformation = null;
 
-            var monitoringTasks = new Task[]
-            {
-                Task.Factory.StartNew(() => { memoryInformation = MemoryMonitor.Collect(); }),
-                Task.Factory.StartNew(() => { platformInformation = PlatformMonitor.Collect(); }),
-                Task.Factory.StartNew(() => { cpusInformation = CPUMonitor.Collect(); }),
-                Task.Factory.StartNew(() => { diskDrivesInformation = DiskDriveMonitor.Collect(); }),
-                Task.Factory.StartNew(() => { diskPartitionsInformation = DiskPartitionMonitor.Collect(); }),
-                Task.Factory.StartNew(() => { memoryBanksInformation = MemoryBankMonitor.Collect(); }),
-                Task.Factory.StartNew(() => { videoControllersInformation = VideoControllerMonitor.Collect(); }),
-            };
+            var monitoringTasks = new List<Task>();
 
-            Task.WaitAll(monitoringTasks);
+            if (!collectorOptions.DisableMemoryInfoCollection)
+                monitoringTasks.Add(Task.Factory.StartNew(() => { memoryInformation = MemoryMonitor.Collect(); }));
 
-            cpusInformation ??= new List<ICPUInfo>();
-            diskDrivesInformation ??= new List<IDiskDriveInfo>();
-            diskPartitionsInformation ??= new List<IDiskPartitionInfo>();
-            memoryBanksInformation ??= new List<IMemoryBankInfo>();
-            videoControllersInformation ??= new List<IVideoControllerInfo>();
+            if (!collectorOptions.DisablePlatformInfoCollection)
+                monitoringTasks.Add(Task.Factory.StartNew(() => { platformInformation = PlatformMonitor.Collect(); }));
+
+            if (!collectorOptions.DisableCPUInfoCollection)
+                monitoringTasks.Add(Task.Factory.StartNew(() => { cpusInformation = CPUMonitor.Collect(); }));
+
+            if (!collectorOptions.DisableDiskDriveInfoCollection)
+                monitoringTasks.Add(Task.Factory.StartNew(() => { diskDrivesInformation = DiskDriveMonitor.Collect(); }));
+
+            if (!collectorOptions.DisableDiskPartitionInfoCollection)
+                monitoringTasks.Add(Task.Factory.StartNew(() => { diskPartitionsInformation = DiskPartitionMonitor.Collect(); }));
+
+            if (!collectorOptions.DisableMemoryBankInfoCollection)
+                monitoringTasks.Add(Task.Factory.StartNew(() => { memoryBanksInformation = MemoryBankMonitor.Collect(); }));
+
+            if (!collectorOptions.DisableVideoControllerInfoCollection)
+                monitoringTasks.Add(Task.Factory.StartNew(() => { videoControllersInformation = VideoControllerMonitor.Collect(); }));
+
+            Task.WaitAll(monitoringTasks.ToArray());
+
+            cpusInformation ??= Enumerable.Empty<ICPUInfo>();
+            diskDrivesInformation ??= Enumerable.Empty<IDiskDriveInfo>();
+            diskPartitionsInformation ??= Enumerable.Empty<IDiskPartitionInfo>();
+            memoryBanksInformation ??= Enumerable.Empty<IMemoryBankInfo>();
+            videoControllersInformation ??= Enumerable.Empty<IVideoControllerInfo>();
 
             systemInformation.Memory = memoryInformation;
             systemInformation.Platform = platformInformation;
@@ -88,6 +104,8 @@ namespace MachineInfo.System.Collectors.Implementation
             systemInformation.DiskPartitions.AddRange(diskPartitionsInformation);
             systemInformation.MemoryBanks.AddRange(memoryBanksInformation);
             systemInformation.VideoControllers.AddRange(videoControllersInformation);
+
+            monitoringTasks.ForEach(x => x.Dispose());
 
             return systemInformation;
         }

@@ -17,13 +17,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using MachineInfo.System.Collectors;
 using MachineInfo.System.Collectors.Implementation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace MachineInfo.System
 {
     public static class MicrosoftDependencyInjection
     {
-        public static void AddSystemMonitor(this IServiceCollection services)
+        public static void AddSystemInfoCollector(this IServiceCollection services, Action<MachineInfoCollectorOptions> options = null)
         {
+            services.Configure(options);
+
             services.AddSingleton<ICPUInfoCollector>(new CPUInfoCollector());
             services.AddSingleton<IDiskDriveInfoCollector>(new DiskDriveInfoCollector());
             services.AddSingleton<IDiskPartitionInfoCollector>(new DiskPartitionInfoCollector());
@@ -34,6 +37,8 @@ namespace MachineInfo.System
 
             services.AddSingleton<ISystemInfoCollector>((serviceProvider) =>
             {
+                var options = serviceProvider.GetRequiredService<IOptions<MachineInfoCollectorOptions>>().Value;
+
                 var cpuMonitor = serviceProvider.GetService<ICPUInfoCollector>();
                 var diskDriveMonitor = serviceProvider.GetService<IDiskDriveInfoCollector>();
                 var diskPartitionMonitor = serviceProvider.GetService<IDiskPartitionInfoCollector>();
@@ -42,7 +47,7 @@ namespace MachineInfo.System
                 var platformMonitor = serviceProvider.GetService<IPlatformInfoCollector>();
                 var videoControllerMonitor = serviceProvider.GetService<IVideoControllerInfoCollector>();
 
-                return new SystemInfoCollector(cpuMonitor, diskDriveMonitor, diskPartitionMonitor, memoryBankMonitor, memoryMonitor, platformMonitor, videoControllerMonitor);
+                return new SystemInfoCollector(options, cpuMonitor, diskDriveMonitor, diskPartitionMonitor, memoryBankMonitor, memoryMonitor, platformMonitor, videoControllerMonitor);
             });
         }
     }
