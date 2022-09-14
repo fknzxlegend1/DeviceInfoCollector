@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using MachineInfo.System.Collectors;
 using MachineInfo.System.Collectors.Implementation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace MachineInfo.System
@@ -27,16 +28,52 @@ namespace MachineInfo.System
         {
             services.Configure(options);
 
-            services.AddSingleton<ICPUInfoCollector>(new CPUInfoCollector());
-            services.AddSingleton<IDiskDriveInfoCollector>(new DiskDriveInfoCollector());
-            services.AddSingleton<IDiskPartitionInfoCollector>(new DiskPartitionInfoCollector());
-            services.AddSingleton<IMemoryBankInfoCollector>(new MemoryBankInfoCollector());
-            services.AddSingleton<IMemoryInfoCollector>(new MemoryInfoCollector());
-            services.AddSingleton<IPlatformInfoCollector>(new PlatformInfoCollector());
-            services.AddSingleton<IVideoControllerInfoCollector>(new VideoControllerInfoCollector());
+            services.AddSingleton<ICPUInfoCollector>((serviceProvider) =>
+            {
+                var logger = serviceProvider.GetRequiredService<ILogger<CPUInfoCollector>>();
+                return new CPUInfoCollector(logger);
+            });
+
+            services.AddSingleton<IDiskDriveInfoCollector>((serviceProvider) =>
+            {
+                var logger = serviceProvider.GetRequiredService<ILogger<DiskDriveInfoCollector>>();
+                return new DiskDriveInfoCollector(logger);
+            });
+
+            services.AddSingleton<IDiskPartitionInfoCollector>((serviceProvider) =>
+            {
+                var logger = serviceProvider.GetRequiredService<ILogger<DiskPartitionInfoCollector>>();
+                return new DiskPartitionInfoCollector(logger);
+            });
+
+            services.AddSingleton<IMemoryBankInfoCollector>((serviceProvider) =>
+            {
+                var logger = serviceProvider.GetRequiredService<ILogger<MemoryBankInfoCollector>>();
+                return new MemoryBankInfoCollector(logger);
+            });
+
+            services.AddSingleton<IMemoryInfoCollector>((serviceProvider) =>
+            {
+                var logger = serviceProvider.GetRequiredService<ILogger<MemoryInfoCollector>>();
+                return new MemoryInfoCollector(logger);
+            });
+
+            services.AddSingleton<IPlatformInfoCollector>((serviceProvider) =>
+            {
+                var logger = serviceProvider.GetRequiredService<ILogger<PlatformInfoCollector>>();
+                return new PlatformInfoCollector(logger);
+            });
+
+            services.AddSingleton<IVideoControllerInfoCollector>((serviceProvider) =>
+            {
+                var logger = serviceProvider.GetRequiredService<ILogger<VideoControllerInfoCollector>>();
+                return new VideoControllerInfoCollector(logger);
+            });
 
             services.AddSingleton<ISystemInfoCollector>((serviceProvider) =>
             {
+                var logger = serviceProvider.GetRequiredService<ILogger<SystemInfoCollector>>();
+
                 var options = serviceProvider.GetRequiredService<IOptions<SystemInfoCollectorOptions>>().Value;
 
                 var cpuMonitor = serviceProvider.GetService<ICPUInfoCollector>();
@@ -47,7 +84,7 @@ namespace MachineInfo.System
                 var platformMonitor = serviceProvider.GetService<IPlatformInfoCollector>();
                 var videoControllerMonitor = serviceProvider.GetService<IVideoControllerInfoCollector>();
 
-                return new SystemInfoCollector(options, cpuMonitor, diskDriveMonitor, diskPartitionMonitor, memoryBankMonitor, memoryMonitor, platformMonitor, videoControllerMonitor);
+                return new SystemInfoCollector(logger, options, cpuMonitor, diskDriveMonitor, diskPartitionMonitor, memoryBankMonitor, memoryMonitor, platformMonitor, videoControllerMonitor);
             });
         }
     }

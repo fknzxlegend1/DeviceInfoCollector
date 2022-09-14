@@ -16,11 +16,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using MachineInfo.System.Data;
 using MachineInfo.System.Data.Implementation;
+using Microsoft.Extensions.Logging;
 
 namespace MachineInfo.System.Collectors.Implementation
 {
     internal class PlatformInfoCollector : IPlatformInfoCollector
     {
+        private readonly ILogger<PlatformInfoCollector> logger;
+
+        public PlatformInfoCollector(ILogger<PlatformInfoCollector> logger)
+        {
+            this.logger = logger;
+        }
+
         public IPlatformInfo Collect()
         {
             PlatformInfo information = new();
@@ -38,9 +46,12 @@ namespace MachineInfo.System.Collectors.Implementation
                 information.ProcessorCount = Environment.ProcessorCount;
                 information.LogicalDrives = Environment.GetLogicalDrives();
                 information.EnvironmentVariables = Environment.GetEnvironmentVariables();
+
+                logger.LogInformation("Collected information about Platform");
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError("Could not collect Platform information, reason: {Exception}", ex);
                 return null;
             }
 

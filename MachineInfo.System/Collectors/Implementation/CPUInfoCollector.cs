@@ -18,6 +18,7 @@ using MachineInfo.System.Data;
 using MachineInfo.System.Data.Implementation;
 using MachineInfo.System.Enumerations;
 using MachineInfo.System.Internal;
+using Microsoft.Extensions.Logging;
 using System.Management;
 using System.Text.RegularExpressions;
 
@@ -25,10 +26,12 @@ namespace MachineInfo.System.Collectors.Implementation
 {
     internal class CPUInfoCollector : ICPUInfoCollector
     {
+        private readonly ILogger<CPUInfoCollector> logger;
         private readonly ManagementObjectSearcher managementObjectSearcher;
 
-        public CPUInfoCollector()
+        public CPUInfoCollector(ILogger<CPUInfoCollector> logger)
         {
+            this.logger = logger;
             managementObjectSearcher = new("SELECT * FROM Win32_Processor");
         }
 
@@ -47,14 +50,16 @@ namespace MachineInfo.System.Collectors.Implementation
                 data.Add(information);
             }
 
+            logger.LogInformation("Collected information about {Count} CPUs", data.Count);
+
             return data;
         }
 
         #region Private methods
 
-        private static ICPUInfo CollectCPUInformation(ManagementObject mgtObject)
+        private ICPUInfo CollectCPUInformation(ManagementObject mgtObject)
         {
-            CPUInfo information = new CPUInfo();
+            CPUInfo information = new();
 
             try
             {
@@ -87,8 +92,9 @@ namespace MachineInfo.System.Collectors.Implementation
                 var success = bool.TryParse(mgtObject[WMI_Indexes.CPU_VirtualizationFirmwareEnabledIndex].ToString(), out bool virtualFlag);
                 information.VirtualizationFirmwareEnabled = success ? (virtualFlag ? "ENABLED" : "DISABLED") : "UNKNOWN";
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError("Could not collect CPU information, reason: {Exception}", ex);
                 return null;
             }
 

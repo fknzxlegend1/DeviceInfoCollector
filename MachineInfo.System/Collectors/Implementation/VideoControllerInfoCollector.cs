@@ -18,16 +18,19 @@ using MachineInfo.System.Data;
 using MachineInfo.System.Data.Implementation;
 using MachineInfo.System.Enumerations;
 using MachineInfo.System.Internal;
+using Microsoft.Extensions.Logging;
 using System.Management;
 
 namespace MachineInfo.System.Collectors.Implementation
 {
     internal class VideoControllerInfoCollector : IVideoControllerInfoCollector
     {
+        private readonly ILogger<VideoControllerInfoCollector> logger;
         private readonly ManagementObjectSearcher managementObjectSearcher;
 
-        public VideoControllerInfoCollector()
+        public VideoControllerInfoCollector(ILogger<VideoControllerInfoCollector> logger)
         {
+            this.logger = logger;
             managementObjectSearcher = new("SELECT * FROM Win32_VideoController");
         }
 
@@ -46,12 +49,14 @@ namespace MachineInfo.System.Collectors.Implementation
                 data.Add(information);
             }
 
+            logger.LogInformation("Collected information about {Count} Video Controllers", data.Count);
+
             return data;
         }
 
         #region Private methods
 
-        private static IVideoControllerInfo CollectVideoControllerInformatioN(ManagementObject mgtObject)
+        private IVideoControllerInfo CollectVideoControllerInformatioN(ManagementObject mgtObject)
         {
             VideoControllerInfo information = new();
 
@@ -103,8 +108,9 @@ namespace MachineInfo.System.Collectors.Implementation
                     information.DriverDate = date.ToString();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError("Could not collect Video Controller information, reason: {Exception}", ex);
                 return null;
             }
 

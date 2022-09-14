@@ -18,16 +18,19 @@ using MachineInfo.System.Data;
 using MachineInfo.System.Data.Implementation;
 using MachineInfo.System.Enumerations;
 using MachineInfo.System.Internal;
+using Microsoft.Extensions.Logging;
 using System.Management;
 
 namespace MachineInfo.System.Collectors.Implementation
 {
     internal class MemoryBankInfoCollector : IMemoryBankInfoCollector
     {
+        private readonly ILogger<MemoryBankInfoCollector> logger;
         private readonly ManagementObjectSearcher managementObjectSearcher;
 
-        public MemoryBankInfoCollector()
+        public MemoryBankInfoCollector(ILogger<MemoryBankInfoCollector> logger)
         {
+            this.logger = logger;
             managementObjectSearcher = new("SELECT * FROM Win32_PhysicalMemory");
         }
 
@@ -46,12 +49,14 @@ namespace MachineInfo.System.Collectors.Implementation
                 data.Add(information);
             }
 
+            logger.LogInformation("Collected information about {Count} Memory Banks", data.Count);
+
             return data;
         }
 
         #region Private methods
 
-        private static IMemoryBankInfo CollectMemoryBankInformation(ManagementObject mgtObject)
+        private IMemoryBankInfo CollectMemoryBankInformation(ManagementObject mgtObject)
         {
             MemoryBankInfo information = new();
 
@@ -79,8 +84,9 @@ namespace MachineInfo.System.Collectors.Implementation
                 information.PositionInRow = mgtObject[WMI_Indexes.MemoryBank_PositionInRowIndex] == null ? -1 : int.Parse(mgtObject[WMI_Indexes.MemoryBank_PositionInRowIndex].ToString());
                 information.FormFactor = (MemoryBankFormFactor) int.Parse(mgtObject[WMI_Indexes.MemoryBank_FormFactorIndex].ToString());
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError("Could not collect Memory Bank information, reason: {Exception}", ex);
                 return null;
             }
 

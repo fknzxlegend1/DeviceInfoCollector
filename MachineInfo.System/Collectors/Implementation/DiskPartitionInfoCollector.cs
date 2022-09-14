@@ -17,16 +17,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using MachineInfo.System.Data;
 using MachineInfo.System.Data.Implementation;
 using MachineInfo.System.Internal;
+using Microsoft.Extensions.Logging;
 using System.Management;
 
 namespace MachineInfo.System.Collectors.Implementation
 {
     internal class DiskPartitionInfoCollector : IDiskPartitionInfoCollector
     {
+        private readonly ILogger<DiskPartitionInfoCollector> logger;
         private readonly ManagementObjectSearcher managementObjectSearcher;
 
-        public DiskPartitionInfoCollector()
+        public DiskPartitionInfoCollector(ILogger<DiskPartitionInfoCollector> logger)
         {
+            this.logger = logger;
             managementObjectSearcher = new("SELECT * FROM Win32_DiskPartition");
         }
 
@@ -45,12 +48,14 @@ namespace MachineInfo.System.Collectors.Implementation
                 data.Add(information);
             }
 
+            logger.LogInformation("Collected information about {Count} Disk Partitions", data.Count);
+
             return data;
         }
 
         #region Private methods
 
-        private static IDiskPartitionInfo CollectDiskPartitionInformation(ManagementObject mgtObject)
+        private IDiskPartitionInfo CollectDiskPartitionInformation(ManagementObject mgtObject)
         {
             DiskPartitionInfo information = new();
 
@@ -89,8 +94,9 @@ namespace MachineInfo.System.Collectors.Implementation
                     information.RewritePartition = success ? temp : null;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError("Could not collect Disk Partition information, reason: {Exception}", ex);
                 return null;
             }
 

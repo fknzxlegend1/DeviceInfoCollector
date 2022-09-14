@@ -16,12 +16,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using MachineInfo.System.Data;
 using MachineInfo.System.Data.Implementation;
+using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 
 namespace MachineInfo.System.Collectors.Implementation
 {
     internal class SystemInfoCollector : ISystemInfoCollector
     {
+        private readonly ILogger<SystemInfoCollector> logger;
+
         private readonly SystemInfoCollectorOptions collectorOptions;
 
         private readonly ICPUInfoCollector CPUMonitor;
@@ -32,7 +35,8 @@ namespace MachineInfo.System.Collectors.Implementation
         private readonly IPlatformInfoCollector PlatformMonitor;
         private readonly IVideoControllerInfoCollector VideoControllerMonitor;
 
-        public SystemInfoCollector(SystemInfoCollectorOptions collectorOptions,
+        public SystemInfoCollector(ILogger<SystemInfoCollector> logger,
+                                   SystemInfoCollectorOptions collectorOptions,
                                    ICPUInfoCollector CPUMonitor,
                                    IDiskDriveInfoCollector DiskDriveMonitor,
                                    IDiskPartitionInfoCollector DiskPartitionMonitor,
@@ -41,6 +45,7 @@ namespace MachineInfo.System.Collectors.Implementation
                                    IPlatformInfoCollector PlatformMonitor,
                                    IVideoControllerInfoCollector VideoControllerMonitor)
         {
+            this.logger = logger;
             this.collectorOptions = collectorOptions;
             this.CPUMonitor = CPUMonitor;
             this.DiskDriveMonitor = DiskDriveMonitor;
@@ -54,7 +59,10 @@ namespace MachineInfo.System.Collectors.Implementation
         public ISystemInfo Collect()
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                logger.LogError("No implementations for non-Windows platforms");
                 throw new NotImplementedException("No implementations for non-Windows platforms");
+            }
 
             var systemInfo = new SystemInfo();
 
@@ -107,6 +115,8 @@ namespace MachineInfo.System.Collectors.Implementation
             systemInfo.VideoControllers.AddRange(videoControllersInfo);
 
             monitoringTasks.ForEach(x => x.Dispose());
+
+            logger.LogInformation("Collected information about System");
 
             return systemInfo;
         }

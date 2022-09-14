@@ -17,16 +17,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using MachineInfo.System.Data;
 using MachineInfo.System.Data.Implementation;
 using MachineInfo.System.Internal;
+using Microsoft.Extensions.Logging;
 using System.Management;
 
 namespace MachineInfo.System.Collectors.Implementation
 {
     internal class DiskDriveInfoCollector : IDiskDriveInfoCollector
     {
+        private readonly ILogger<DiskDriveInfoCollector> logger;
         private readonly ManagementObjectSearcher managementObjectSearcher;
 
-        public DiskDriveInfoCollector()
+        public DiskDriveInfoCollector(ILogger<DiskDriveInfoCollector> logger)
         {
+            this.logger = logger;
             managementObjectSearcher = new("SELECT * FROM Win32_DiskDrive");
         }
 
@@ -45,12 +48,14 @@ namespace MachineInfo.System.Collectors.Implementation
                 data.Add(information);
             }
 
+            logger.LogInformation("Collected information about {Count} Disk Drives", data.Count);
+
             return data;
         }
 
         #region Private methods
 
-        private static IDiskDriveInfo CollectDiskDriveInformation(ManagementObject mgtObject)
+        private IDiskDriveInfo CollectDiskDriveInformation(ManagementObject mgtObject)
         {
             DiskDriveInfo information = new();
             
@@ -75,8 +80,9 @@ namespace MachineInfo.System.Collectors.Implementation
                 information.TracksPerCylinder = mgtObject[WMI_Indexes.DiskDrive_TracksPerCylinderIndex] == null ? -1 : int.Parse(mgtObject[WMI_Indexes.DiskDrive_TracksPerCylinderIndex].ToString());
                 information.Signature = (mgtObject[WMI_Indexes.DiskDrive_SignatureIndex] == null) ? -1 : int.Parse(mgtObject[WMI_Indexes.DiskDrive_SignatureIndex].ToString());
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError("Could not collect Disk Drive information, reason: {Exception}", ex);
                 return null;
             }
 

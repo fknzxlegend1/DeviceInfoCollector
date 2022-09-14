@@ -17,16 +17,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using MachineInfo.System.Data;
 using MachineInfo.System.Data.Implementation;
 using MachineInfo.System.Internal;
+using Microsoft.Extensions.Logging;
 using System.Management;
 
 namespace MachineInfo.System.Collectors.Implementation
 {
     internal class MemoryInfoCollector : IMemoryInfoCollector
     {
+        private readonly ILogger<MemoryInfoCollector> logger;
         private readonly ManagementObjectSearcher managementObjectSearcher;
 
-        public MemoryInfoCollector()
+        public MemoryInfoCollector(ILogger<MemoryInfoCollector> logger)
         {
+            this.logger = logger;
             managementObjectSearcher = new("SELECT * FROM Win32_PhysicalMemory");
         }
 
@@ -50,9 +53,12 @@ namespace MachineInfo.System.Collectors.Implementation
                 information.NoOfMemoryBanks = banks.Count;
                 information.DataWidth = banks.FirstOrDefault().DataWidth;
                 information.TotalSize = banks.Sum(x => x.Capacity);
+
+                logger.LogInformation("Collected information about Memory");
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError("Could not collect Memory information, reason: {Exception}", ex);
                 return null;
             }
 
